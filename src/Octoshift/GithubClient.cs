@@ -17,7 +17,7 @@ namespace OctoshiftCLI
         private readonly HttpClient _httpClient;
         private readonly OctoLogger _log;
 
-        public GithubClient(OctoLogger log, HttpClient httpClient, string personalAccessToken)
+        public GithubClient(OctoLogger log, HttpClient httpClient, string personalAccessToken, string baseUrl)
         {
             _log = log;
             _httpClient = httpClient;
@@ -28,6 +28,18 @@ namespace OctoshiftCLI
                 _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("OctoshiftCLI", "0.1"));
                 _httpClient.DefaultRequestHeaders.Add("GraphQL-Features", "import_api");
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personalAccessToken);
+
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                {
+                    throw new ArgumentException("baseUrl cannot be empty", nameof(baseUrl));
+                }
+
+                if (!baseUrl.EndsWith("/"))
+                {
+                    baseUrl = $"{baseUrl.Trim()}/";
+                }
+
+                _httpClient.BaseAddress = new Uri(baseUrl);
             }
         }
 
@@ -65,8 +77,8 @@ namespace OctoshiftCLI
             HttpMethod httpMethod, string url, object body = null, HttpStatusCode status = HttpStatusCode.OK)
         {
             url = url?.Replace(" ", "%20");
-
-            _log.LogVerbose($"HTTP {httpMethod}: {url}");
+            url = url.TrimStart('/');
+            _log.LogVerbose($"HTTP {httpMethod}: {_httpClient.BaseAddress}{url}");
 
             if (body != null)
             {
@@ -113,6 +125,11 @@ namespace OctoshiftCLI
                     return (Url: url, Rel: rel);
                 })
                 .FirstOrDefault(x => x.Rel == "next").Url;
+
+            if (!string.IsNullOrEmpty(nextUrl) && nextUrl.StartsWith(_httpClient.BaseAddress.ToString()))
+            {
+                nextUrl = nextUrl[_httpClient.BaseAddress.ToString().Length..];
+            }
 
             return nextUrl;
         }

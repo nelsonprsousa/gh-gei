@@ -155,8 +155,8 @@ namespace OctoshiftCLI.GithubEnterpriseImporter.Commands
 
         private async Task<string> InvokeGithub(string githubSourceOrg, string githubTargetOrg, string ghesApiUrl, string azureStorageConnectionString, bool noSslVerify, bool ssh)
         {
-            var targetApiUrl = "https://api.github.com";
-            var repos = await GetGithubRepos(_sourceGithubApiFactory.Create(targetApiUrl), githubSourceOrg);
+            var sourceGithubUrl = string.IsNullOrWhiteSpace(ghesApiUrl) ? "https://api.github.com" : ghesApiUrl;
+            var repos = await GetGithubRepos(_sourceGithubApiFactory.Create(sourceGithubUrl), githubSourceOrg);
             return GenerateGithubScript(repos, githubSourceOrg, githubTargetOrg, ghesApiUrl, azureStorageConnectionString, noSslVerify, ssh);
         }
 

@@ -17,38 +17,33 @@ namespace OctoshiftCLI.GithubEnterpriseImporter
 
         GithubApi ISourceGithubApiFactory.Create()
         {
-            var githubPat = _environmentVariableProvider.SourceGithubPersonalAccessToken();
-            var githubClient = new GithubClient(_octoLogger, _clientFactory.CreateClient("Default"), githubPat);
-
-            return new GithubApi(githubClient, "https://api.github.com");
+            return ((ISourceGithubApiFactory)this).Create("https://api.github.com");
         }
 
         GithubApi ISourceGithubApiFactory.Create(string apiUrl)
         {
             var githubPat = _environmentVariableProvider.SourceGithubPersonalAccessToken();
-            var githubClient = new GithubClient(_octoLogger, _clientFactory.CreateClient("Default"), githubPat);
-            return new GithubApi(githubClient, apiUrl);
+            var githubClient = new GithubClient(_octoLogger, _clientFactory.CreateClient("Default"), githubPat, apiUrl);
+            return new GithubApi(githubClient);
         }
 
         GithubApi ISourceGithubApiFactory.CreateClientNoSsl(string apiUrl)
         {
             var githubPat = _environmentVariableProvider.SourceGithubPersonalAccessToken();
-            var githubClient = new GithubClient(_octoLogger, _clientFactory.CreateClient("NoSSL"), githubPat);
-            return new GithubApi(githubClient, apiUrl);
+            var githubClient = new GithubClient(_octoLogger, _clientFactory.CreateClient("NoSSL"), githubPat, apiUrl);
+            return new GithubApi(githubClient);
         }
 
         GithubApi ITargetGithubApiFactory.Create()
         {
-            var githubPat = _environmentVariableProvider.TargetGithubPersonalAccessToken();
-            var githubClient = new GithubClient(_octoLogger, _clientFactory.CreateClient("Default"), githubPat);
-            return new GithubApi(githubClient, "https://api.github.com");
+            return ((ITargetGithubApiFactory)this).Create("https://api.github.com");
         }
 
         GithubApi ITargetGithubApiFactory.Create(string apiUrl)
         {
             var githubPat = _environmentVariableProvider.TargetGithubPersonalAccessToken();
-            var githubClient = new GithubClient(_octoLogger, _clientFactory.CreateClient("Default"), githubPat);
-            return new GithubApi(githubClient, apiUrl);
+            var githubClient = new GithubClient(_octoLogger, _clientFactory.CreateClient("Default"), githubPat, apiUrl);
+            return new GithubApi(githubClient);
         }
     }
 }
